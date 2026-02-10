@@ -20,6 +20,8 @@ import { ThemeToggle } from '@/components/theme-toggle'
 import { UserMenu } from '@/components/user-menu'
 import { useUserStore } from '@/store/user-store'
 import { Button } from '@/components/ui/button'
+import logoLight from '../../../Assets/Logo/Logo Light Mode.png'
+import logoDark from '../../../Assets/Logo/Logo Dark Mode.png'
 
 // Dashboard navigation
 const dashboardNavigation = [
@@ -65,8 +67,9 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
         <aside className="flex w-64 flex-col border-r bg-card">
         {/* Header */}
         <div className="flex h-16 items-center justify-between border-b px-6">
-          <Link to="/" className="text-xl font-bold hover:opacity-80 transition-opacity">
-            Mockman
+          <Link to="/" className="hover:opacity-80 transition-opacity">
+            <img src={logoLight} alt="Mockman" className="h-7 w-auto dark:hidden" />
+            <img src={logoDark} alt="Mockman" className="hidden h-7 w-auto dark:block" />
           </Link>
           <ThemeToggle />
         </div>
