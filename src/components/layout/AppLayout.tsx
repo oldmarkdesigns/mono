@@ -2,19 +2,18 @@ import { useEffect } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { cn } from '@/lib/utils'
 import {
-  Palette,
-  Type,
-  Square,
-  Blocks,
-  FileText,
-  LayoutDashboard,
-  Settings,
+  Bell,
+  BookOpen,
+  BarChart3,
   HelpCircle,
-  Zap,
-  Upload,
   Home,
   ArrowLeft,
-  Sparkles,
+  MessageSquareMore,
+  Palette,
+  Search,
+  Settings,
+  UserPlus,
+  Zap,
 } from 'lucide-react'
 import { ThemeToggle } from '@/components/theme-toggle'
 import { UserMenu } from '@/components/user-menu'
@@ -23,26 +22,27 @@ import { Button } from '@/components/ui/button'
 import logoLight from '../../../Assets/Logo/Logo Light Mode.png'
 import logoDark from '../../../Assets/Logo/Logo Dark Mode.png'
 
-// Dashboard navigation
-const dashboardNavigation = [
-  { name: 'Dashboard', href: '/', icon: Home },
-  { name: 'Creator', href: '/creator', icon: Sparkles },
-  { name: 'Import Code', href: '/import', icon: Upload },
+type NavItem = {
+  name: string
+  href: string
+  icon: React.ComponentType<{ className?: string }>
+  startsWith?: boolean
+}
+
+const primaryNav: NavItem[] = [
+  { name: 'Home', href: '/', icon: Home },
+  { name: 'Documentation', href: '/creator/guidelines', icon: BookOpen },
+  { name: 'Analytics', href: '/analytics', icon: BarChart3 },
+  { name: 'Design Systems', href: '/creator', icon: Palette, startsWith: true },
 ]
 
-// Creator mode navigation
-const creatorNavigation = [
-  { name: 'Overview', href: '/creator/overview', icon: LayoutDashboard },
-  { name: 'Colors', href: '/creator/colors', icon: Palette },
-  { name: 'Typography', href: '/creator/typography', icon: Type },
-  { name: 'Buttons', href: '/creator/buttons', icon: Square },
-  { name: 'Components', href: '/creator/components', icon: Blocks },
-  { name: 'Guidelines', href: '/creator/guidelines', icon: FileText },
-]
-
-const bottomNav = [
-  { name: 'Help & Support', href: '/help', icon: HelpCircle },
-  { name: 'Settings', href: '/settings', icon: Settings },
+const bottomNav: NavItem[] = [
+  { name: 'Notifications', href: '/notifications', icon: Bell },
+  { name: 'Search', href: '/search', icon: Search },
+  { name: 'Invite Team', href: '/invite-team', icon: UserPlus },
+  { name: 'Settings', href: '/settings', icon: Settings, startsWith: true },
+  { name: 'Contact Support', href: '/support', icon: MessageSquareMore },
+  { name: 'Help', href: '/help', icon: HelpCircle },
 ]
 
 export function AppLayout({ children }: { children: React.ReactNode }) {
@@ -54,11 +54,8 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   }, [initializeUser])
 
   const showUpgradeBanner = user?.plan === 'free'
-  
-  // Determine which mode we're in
   const isCreatorMode = location.pathname.startsWith('/creator/')
   const isAICreatorPage = location.pathname === '/creator/ai'
-  const navigation = isCreatorMode ? creatorNavigation : dashboardNavigation
 
   return (
     <div className="flex h-screen bg-background">
@@ -89,16 +86,10 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
         {/* Main Navigation */}
         <div className="flex-1 overflow-y-auto">
           <nav className="space-y-1 p-3">
-            {isCreatorMode && (
-              <div className="mb-3 px-3 py-2">
-                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                  Design System
-                </p>
-              </div>
-            )}
-            
-            {navigation.map((item) => {
-              const isActive = location.pathname === item.href
+            {primaryNav.map((item) => {
+              const isActive = item.startsWith
+                ? location.pathname.startsWith(item.href)
+                : location.pathname === item.href
               return (
                 <Link
                   key={item.name}
@@ -118,7 +109,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
           </nav>
 
           {/* Upgrade Banner */}
-          {showUpgradeBanner && !isCreatorMode && (
+          {showUpgradeBanner && (
             <div className="mx-3 my-4 rounded-lg border bg-gradient-to-br from-primary/10 via-primary/5 to-background p-4">
               <div className="flex items-start gap-3">
                 <div className="rounded-lg bg-primary/10 p-2">
@@ -145,7 +136,9 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
         <div className="border-t">
           <nav className="space-y-1 p-3">
             {bottomNav.map((item) => {
-              const isActive = location.pathname.startsWith(item.href)
+              const isActive = item.startsWith
+                ? location.pathname.startsWith(item.href)
+                : location.pathname === item.href
               return (
                 <Link
                   key={item.name}
