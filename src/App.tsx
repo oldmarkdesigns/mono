@@ -32,6 +32,15 @@ function App() {
             <Route path="/creator/components" element={<ComponentsPage />} />
             <Route path="/creator/guidelines" element={<GuidelinesPage />} />
             <Route
+              path="/documentation"
+              element={
+                <PlaceholderPage
+                  title="Documentation"
+                  description="Documentation is coming soon."
+                />
+              }
+            />
+            <Route
               path="/analytics"
               element={
                 <PlaceholderPage

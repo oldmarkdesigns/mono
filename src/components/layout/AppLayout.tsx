@@ -5,6 +5,7 @@ import {
   Bell,
   BookOpen,
   BarChart3,
+  Blocks,
   HelpCircle,
   Home,
   ArrowLeft,
@@ -12,6 +13,8 @@ import {
   Palette,
   Search,
   Settings,
+  Square,
+  Type,
   UserPlus,
   Zap,
 } from 'lucide-react'
@@ -31,9 +34,17 @@ type NavItem = {
 
 const primaryNav: NavItem[] = [
   { name: 'Home', href: '/', icon: Home },
-  { name: 'Documentation', href: '/creator/guidelines', icon: BookOpen },
-  { name: 'Analytics', href: '/analytics', icon: BarChart3 },
   { name: 'Design Systems', href: '/creator', icon: Palette, startsWith: true },
+  { name: 'Analytics', href: '/analytics', icon: BarChart3 },
+  { name: 'Documentation', href: '/documentation', icon: BookOpen },
+]
+
+const creatorNav: NavItem[] = [
+  { name: 'Design Tokens', href: '/creator/overview', icon: Palette },
+  { name: 'Colors', href: '/creator/colors', icon: Palette },
+  { name: 'Typography', href: '/creator/typography', icon: Type },
+  { name: 'Buttons', href: '/creator/buttons', icon: Square },
+  { name: 'Components', href: '/creator/components', icon: Blocks },
 ]
 
 const bottomNav: NavItem[] = [
@@ -54,14 +65,22 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   }, [initializeUser])
 
   const showUpgradeBanner = user?.plan === 'free'
-  const isCreatorMode = location.pathname.startsWith('/creator/')
+  const isCreatorSubpage = location.pathname.startsWith('/creator/')
+  const isCreatorMode = isCreatorSubpage
   const isAICreatorPage = location.pathname === '/creator/ai'
+  const currentPrimaryNav = isCreatorMode ? creatorNav : primaryNav
+  const availableCreditsByPlan = {
+    free: 600,
+    pro: 5000,
+    enterprise: 25000,
+  } as const
+  const availableCredits = user ? availableCreditsByPlan[user.plan] : availableCreditsByPlan.free
 
   return (
-    <div className="flex h-screen bg-background">
+    <div className="flex h-screen gap-4 bg-background p-4">
       {/* Sidebar */}
       {!isAICreatorPage && (
-        <aside className="flex w-64 flex-col border-r bg-card">
+        <aside className="sticky top-4 flex h-[calc(100vh-2rem)] w-72 flex-col rounded-2xl border border-white/10 bg-card/65 shadow-xl backdrop-blur-xl">
         {/* Header */}
         <div className="flex h-16 items-center justify-between border-b px-6">
           <Link to="/" className="hover:opacity-80 transition-opacity">
@@ -72,7 +91,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
         </div>
 
         {/* Mode Switcher / Back Button */}
-        {isCreatorMode && (
+        {isCreatorSubpage && (
           <div className="border-b p-4">
             <Link to="/creator">
               <Button variant="ghost" size="sm" className="w-full justify-start text-muted-foreground hover:text-foreground">
@@ -86,7 +105,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
         {/* Main Navigation */}
         <div className="flex-1 overflow-y-auto">
           <nav className="space-y-1 p-3">
-            {primaryNav.map((item) => {
+            {currentPrimaryNav.map((item) => {
               const isActive = item.startsWith
                 ? location.pathname.startsWith(item.href)
                 : location.pathname === item.href
@@ -134,6 +153,20 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
 
         {/* Bottom Section */}
         <div className="border-t">
+          {!isCreatorMode && (
+            <div className="border-b px-4 py-3">
+              <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                Available Credits
+              </p>
+              <div className="mt-2 flex items-center justify-between gap-3">
+                <p className="text-sm text-foreground">Daily credits</p>
+                <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                  {availableCredits.toLocaleString()} / {availableCredits.toLocaleString()}
+                </p>
+              </div>
+            </div>
+          )}
+
           <nav className="space-y-1 p-3">
             {bottomNav.map((item) => {
               const isActive = item.startsWith
@@ -166,7 +199,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
       )}
 
       {/* Main content */}
-      <main className="flex-1 overflow-auto">
+      <main className="flex-1 overflow-auto rounded-2xl">
         <div className={cn(
           "mx-auto p-8",
           isAICreatorPage ? "max-w-5xl" : "container"
